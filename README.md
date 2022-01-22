@@ -1,3 +1,9 @@
+### Exploit implemented: Test passing
+
+Thanks to [@BlueAlder](https://github.com/BlueAlder) for this exciting challenge.
+
+---
+
 # Front Run Challenge
 
 This is a challenge to showcase  a front running exploit on the ETH blockchain. This is built using hardhat network. 
